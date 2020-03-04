@@ -128,7 +128,8 @@ def venues():
   #   }]
   # }]
   try:
-    venues = Venue.query.all()
+    # venues = Venue.query.all()
+    venues = Venue.query.order_by(Venue.city).all()
     data=[]
 
     for venue in venues:
@@ -139,11 +140,7 @@ def venues():
             "id": venue.id,
             "name": venue.name,
             "num_upcoming_shows": 0,
-            }, {
-          "id": 0,
-          "name": "Park Square Live Music & Coffee",
-          "num_upcoming_shows": 1,
-          }]
+            }]
         })
   except:
     db.session.rollback()
@@ -158,15 +155,18 @@ def search_venues():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }
-  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+  search_by = request.form.get('search_term')
+  search_result = Venue.query.filter(Venue.name.ilike(f'%{search_by}%')).all()
+  response=[]
+
+  for result in search_result:
+      response.append({
+        "id": result.id,
+        "name": result.name,
+        "num_upcoming_shows": 0,
+    })
+    
+  return render_template('pages/search_venues.html', results=response, number=len(search_result),search_by=search_by)
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
@@ -286,16 +286,25 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
   # TODO: replace with real data returned from querying the database
-  data=[{
-    "id": 4,
-    "name": "Guns N Petals",
-  }, {
-    "id": 5,
-    "name": "Matt Quevedo",
-  }, {
-    "id": 6,
-    "name": "The Wild Sax Band",
-  }]
+  artists = Artist.query.order_by(Artist.city).all()
+  data=[]
+
+  for artist in artists:
+    data.append({
+      "id": artist.id,
+      "name": artist.name,
+    })
+
+  # data=[{
+  #   "id": 4,
+  #   "name": "Guns N Petals",
+  # }, {
+  #   "id": 5,
+  #   "name": "Matt Quevedo",
+  # }, {
+  #   "id": 6,
+  #   "name": "The Wild Sax Band",
+  # }]
   return render_template('pages/artists.html', artists=data)
 
 @app.route('/artists/search', methods=['POST'])
