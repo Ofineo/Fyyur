@@ -14,6 +14,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
+import sys
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -30,42 +31,51 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
-Show = db.Table('show',
-  db.Column('venue_id', db.Integer, db.ForeignKey(
-      'venue.id'), primary_key=True),
-  db.Column('artist_id', db.Integer, db.ForeignKey(
-      'artist.id'), primary_key=True),
-)
+
+class Show(db.Model):
+  __tablename__ = 'show'
+  id = db.Column(db.Integer, primary_key=True)
+  time = db.Column(db.DateTime)
+  venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'))
+  artist_id = db.Column(db.Integer, db.ForeignKey('artist.id'))
+  venue = db.relationship("Venue", back_populates="show")
+  artist = db.relationship("Artist", back_populates="show")
+
 
 
 class Venue(db.Model):
-    __tablename__ = 'venue'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    address = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
+  __tablename__ = 'venue'
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+  city = db.Column(db.String(120))
+  state = db.Column(db.String(120))
+  address = db.Column(db.String(120))
+  phone = db.Column(db.String(120))
+  image_link = db.Column(db.String(500))
+  facebook_link = db.Column(db.String(120))
+  genres = db.Column(db.String(120))
+  website = db.Column(db.String(200))
+  seeking_talent = db.Column(db.Boolean)
+  seeking_description = db.Column(db.String(500))
+  show = db.relationship("Show", back_populates="venue")
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 
 class Artist(db.Model):
-    __tablename__ = 'artist'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    venues = db.relationship('Venue', secondary=Show,
-                             backref=db.backref('artists', lazy=True))
+  __tablename__ = 'artist'
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+  city = db.Column(db.String(120))
+  state = db.Column(db.String(120))
+  phone = db.Column(db.String(120))
+  genres = db.Column(db.String(120))
+  image_link = db.Column(db.String(500))
+  facebook_link = db.Column(db.String(120))
+  website = db.Column(db.String(200))
+  seeking_venue = db.Column(db.Boolean)
+  seeking_description = db.Column(db.String(500))
+  show = db.relationship('Show', back_populates="artist")
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -261,12 +271,40 @@ def show_venue(venue_id):
 @app.route('/venues/create', methods=['GET'])
 def create_venue_form():
   form = VenueForm()
+ 
   return render_template('forms/new_venue.html', form=form)
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
+  venue = Venue(
+    name= request.form['name'],
+    city= request.form['city'],
+    state= request.form['state'],
+    address= request.form['address'],
+    phone= request.form['phone'],
+    # image_link= request.form['image_link'],
+    genres= request.form['genres'],
+    facebook_link= request.form['facebook_link'],
+  )
+  try:
+    number = Venue.query.filter(Venue.name == venue.name).count()
+    
+    print('session quentity',number)  
+    if number == 0:
+      db.session.add(venue)
+      db.session.commit()
+  except:  
+    db.session.rollback()
+    print('DB rollback')
+    print(sys.exc_info())
+  finally:  
+    print('db closed')
+    db.session.close()
+
   # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
+  # TODO: modify data to be the data object returned from db insertio n
+
+  print('name and address',request.form['name'],request.form['state'], )
 
   # on successful db insert, flash success
   flash('Venue ' + request.form['name'] + ' was successfully listed!')
