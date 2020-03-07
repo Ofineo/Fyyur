@@ -280,21 +280,21 @@ def show_venue(venue_id):
     future_shows = []
 
     for show in show_past:
-        name = Artist.query.get(show.artist_id)
+        artist = Artist.query.get(show.artist_id)
 
         past_shows.append({
             "artist_id": show.artist_id,
-            "artist_name": name,
+            "artist_name": artist.name,
             "artist_image_link": "https://www.freedigitalphotos.net/images/img/homepage/394230.jpg",
             "start_time": (show.time).strftime("%m/%d/%Y, %H:%M")
         })
 
     for show in show_future:
-        name = Artist.query.get(show.artist_id)
+        artist = Artist.query.get(show.artist_id)
 
         future_shows.append({
             "artist_id": show.artist_id,
-            "artist_name": name,
+            "artist_name": artist.name,
             "artist_image_link": "https://www.freedigitalphotos.net/images/img/homepage/394230.jpg",
             "start_time": (show.time).strftime("%m/%d/%Y, %H:%M")
         })
