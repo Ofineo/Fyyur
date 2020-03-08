@@ -1413,6 +1413,10 @@ a.bg-danger:focus {
   margin: 40px 0 20px;
   border-bottom: 1px solid #eeeeee;
 }
+
+li{
+  display: flex;
+}
 ul,
 ol {
   margin-top: 0;

@@ -10,9 +10,9 @@
 			ID: {{ artist.id }}
 		</p>
 		<div class="genres">
-			{% for genre in artist.genres %}
-			<span class="genre">{{ genre }}</span>
-			{% endfor %}
+		
+			<span class="genre">{{ artist.genres }}</span>
+			
 		</div>
 		<p>
 			<i class="fas fa-globe-americas"></i> {{ artist.city }}, {{ artist.state }}
@@ -38,6 +38,12 @@
 			<i class="fas fa-moon"></i> Not currently seeking performance venues
 		</p>
 		{% endif %}
+		<a href="/artists/{{ artist.id }}" method="DELETE">
+			<button class="btn btn-danger btn-sm">Delete venue</button>
+		</a>
+		<a href="/artists/{{ artist.id }}/edit">
+			<button class="btn btn-default btn-sm">Edit artist</button>
+		</a>
 	</div>
 	<div class="col-sm-6">
 		<img src="{{ artist.image_link }}" alt="Venue Image" />

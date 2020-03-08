@@ -1,3 +1,9 @@
 h1 {
 	margin-bottom: 1em;
 }
+li{
+	display: flex ;
+}
+button{
+	margin: 5px;
+}
