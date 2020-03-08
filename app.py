@@ -96,7 +96,7 @@ app.jinja_env.filters['datetime'] = format_datetime
 #----------------------------------------------------------------------------#
 
 
-@app.route('/', methods=['DELETE','GET'])
+@app.route('/')
 def index():
     return render_template('pages/home.html')
 
@@ -259,6 +259,8 @@ def delete_venue(venue_id):
       db.session.rollback()
     finally:
       db.session.close()
+
+    return render_template('pages/home.html')
 
 #  Artists
 #  ----------------------------------------------------------------
